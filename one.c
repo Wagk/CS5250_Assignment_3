@@ -39,22 +39,25 @@ int onebyte_release(struct inode *inode, struct file *filep)
 
 ssize_t onebyte_read(struct file *filep, char *buf, size_t count, loff_t *f_pos)
 {
-	/*please complete the function on your own*/
 	if (!buf)
 		return EINVAL;
 
+	printk("Printing byte");
 	return put_user(*onebyte_data, buf);
 }
 
 ssize_t onebyte_write(struct file *filep, const char *buf,size_t count, loff_t *f_pos)
 {
 	ssize_t result;
+
+	printk("Writing something");
 	if (!buf)
 		return EINVAL;
 
+	printk("Updating byte from buffer");
 	result = get_user(*onebyte_data, buf);
 
-	if (count > 0)
+	if (count > 1)
 		return ENOMEM;
 	
 	return result;
