@@ -6,14 +6,14 @@
 #include <linux/types.h>
 #include <linux/fs.h>
 #include <linux/proc_fs.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 
 #define MAJOR_NUMBER 61
 
 /* forward declaration */
 int onebyte_open(struct inode *inode, struct file *filep);
 int onebyte_release(struct inode *inode, struct file *filep);
-ssize_t onebyte_read(struct file *filep, char *buf, size_tcount, loff_t *f_pos);
+ssize_t onebyte_read(struct file *filep, char *buf, size_t count, loff_t *f_pos);
 ssize_t onebyte_write(struct file *filep, const char *buf,size_t count, loff_t *f_pos);
 static void onebyte_exit(void);
 
@@ -37,14 +37,27 @@ int onebyte_release(struct inode *inode, struct file *filep)
 	return 0; // always successful
 }
 
-ssize_t onebyte_read(struct file *filep, char *buf, size_tcount, loff_t *f_pos)
+ssize_t onebyte_read(struct file *filep, char *buf, size_t count, loff_t *f_pos)
 {
 	/*please complete the function on your own*/
+	if (!buf)
+		return EINVAL;
+
+	return put_user(*onebyte_data, buf);
 }
 
 ssize_t onebyte_write(struct file *filep, const char *buf,size_t count, loff_t *f_pos)
 {
-	/*please complete the function on your own*/
+	ssize_t result;
+	if (!buf)
+		return EINVAL;
+
+	result = get_user(*onebyte_data, buf);
+
+	if (count > 0)
+		return ENOMEM;
+	
+	return result;
 }
 
 static int onebyte_init(void)
