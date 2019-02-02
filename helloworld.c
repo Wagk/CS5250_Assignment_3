@@ -4,9 +4,11 @@
 
 MODULE_LICENSE("GPL");
 
+char* who = 0;
+
 static int hello_init(void) 
 {
-	printk(KERN_ALERT "Hello, world\n");
+	printk(KERN_ALERT "Hello %s\n", who);
 	return 0;
 }
 
@@ -14,6 +16,9 @@ static void hello_exit(void)
 {
 	printk(KERN_ALERT "Goodbye, cruel world\n");
 }
+
+module_param(who, charp, 0);
+MODULE_PARM_DESC(who, "A kernel module parameter");
 
 module_init(hello_init);
 module_exit(hello_exit);
