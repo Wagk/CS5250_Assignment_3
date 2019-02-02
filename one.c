@@ -7,6 +7,7 @@
 #include <linux/fs.h>
 #include <linux/proc_fs.h>
 #include <linux/uaccess.h>
+#include <asm/uaccess.h>
 
 #define MAJOR_NUMBER 61
 
@@ -39,31 +40,21 @@ int onebyte_release(struct inode *inode, struct file *filep)
 
 ssize_t onebyte_read(struct file *filep, char *buf, size_t count, loff_t *f_pos)
 {
-	unsigned long uncopied = 0;
-
-	uncopied = copy_to_user(buf, onebyte_data, sizeof (char));
-
-	if (uncopied)
-		return -EINVAL;
-	else
+	if (onebyte_data == NULL || *f_pos > 0)
 		return 0;
+	if (copy_to_user(buf, onebyte_data, 1) == 0){
+		++*f_pos;
+		return 1;
+	}
+	return 0;
 }
 
 ssize_t onebyte_write(struct file *filep, const char *buf,size_t count, loff_t *f_pos)
 {
-	unsigned long uncopied = 0;
-
-	if (!buf)
-		return -EINVAL;
-
-	uncopied = copy_from_user(onebyte_data, buf, sizeof(char));
-
-	if (count > 1)
-		return -ENOMEM;
-	if (uncopied)
+	if (copy_from_user(onebyte_data, buf, sizeof(char))) 
 		return -EINVAL;
 	else
-		return 0;
+		return 1;
 }
 
 static int onebyte_init(void)
