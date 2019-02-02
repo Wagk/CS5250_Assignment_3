@@ -49,12 +49,16 @@ ssize_t onebyte_read(struct file *filep, char *buf, size_t count, loff_t *f_pos)
 	return 0;
 }
 
-ssize_t onebyte_write(struct file *filep, const char *buf,size_t count, loff_t *f_pos)
+ssize_t onebyte_write(struct file *filep, const char *buf, size_t count, loff_t *f_pos)
 {
-	if (copy_from_user(onebyte_data, buf, sizeof(char))) 
-		return -EINVAL;
-	else
-		return 1;
+	if (onebyte_data == NULL || count < 1)
+		return 0;
+	if (*f_pos > 1)
+		return -ENOSPC;
+	copy_from_user(onebyte_data, buf, 1);
+	printk("New onebyte_data is %c", *onebyte_data);
+	++*f_pos;
+	return 1;
 }
 
 static int onebyte_init(void)
